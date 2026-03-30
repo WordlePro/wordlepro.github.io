@@ -180,6 +180,40 @@
             background: var(--border-empty);
         }
 
+        /* 提示面板容器 */
+        #hint-list-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        /* 高性能渲染区域：使用 pre 保留换行，textContent 写入 */
+        #hint-list-pre {
+            margin: 0;
+            font-family: 'Libre Franklin', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            line-height: 2.2;
+            text-transform: uppercase;
+            text-align: center;
+            color: var(--text);
+        }
+
+        /* 隐藏滚动条但保留功能 (可选) */
+        #hint-list-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #hint-list-container::-webkit-scrollbar-thumb {
+            background: var(--border-empty);
+        }
+
+        /* 按钮冷却状态 */
+        .icon-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
         /* 作答区：始终保持全屏居中 */
         #game-area {
             flex-grow: 1;
@@ -491,6 +525,13 @@
                     <!-- 这里会通过 JS 动态插入太阳或月亮图标 -->
                 </svg>
             </button>
+            <button class="icon-btn" id="mode-toggle-btn" title="Toggle Mode" onclick="toggleWordMode()">
+                <svg id="mode-icon" viewBox="0 0 24 24">
+                    <!-- 初始图标（正常模式：星星） -->
+                    <path
+                        d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+            </button>
         </div>
         <img src="wordle-icon.svg" alt="Logo">
         Wordle
@@ -502,7 +543,10 @@
     <div id="main-layout">
         <aside id="hint-panel">
             <div id="hint-header">Possible Words</div>
-            <div id="hint-list"></div>
+            <div id="hint-list-container">
+                <!-- 核心：使用 pre 标签处理成千上万个单词的换行 -->
+                <pre id="hint-list-pre"></pre>
+            </div>
         </aside>
 
         <main id="game-area">
@@ -541,14 +585,25 @@
 
         const PRAISES = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"];
 
+        let gameMode = "normal"; // "normal" 或 "all"
+        let combinedPool = [];   // 存放所有合法词汇
+        let isModeChanging = false; // 冷却状态锁
+
         async function initGame() {
             try {
                 const [res1, res2] = await Promise.all([fetch(ANSWERS_FILE), fetch(ALLOWED_FILE)]);
                 const text1 = await res1.text();
                 const text2 = await res2.text();
+
+                // 正常模式词池 (常用词)
                 answersPool = text1.split(/\r?\n/).map(w => w.trim().toUpperCase()).filter(w => w.length === 5).sort();
                 const allowed = text2.split(/\r?\n/).map(w => w.trim().toUpperCase()).filter(w => w.length === 5);
+
+                // 验证集
                 validGuesses = new Set([...answersPool, ...allowed]);
+                // 所有词汇模式词池 (全量)
+                combinedPool = Array.from(validGuesses).sort();
+
                 startNewRound();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('board').style.visibility = 'visible';
@@ -560,7 +615,11 @@
 
         function startNewRound() {
             if (gameOverToast) { gameOverToast.remove(); gameOverToast = null; }
-            targetWord = answersPool[Math.floor(Math.random() * answersPool.length)];
+
+            // 根据当前模式从不同词池随机选词
+            const pool = (gameMode === "normal") ? answersPool : combinedPool;
+            targetWord = pool[Math.floor(Math.random() * pool.length)];
+
             currentGuess = "";
             guesses = [];
             gameStatus = "playing";
@@ -579,6 +638,60 @@
             });
         }
 
+        function toggleWordMode() {
+            if (isModeChanging || isAnimating) return;
+
+            const btn = document.getElementById('mode-toggle-btn');
+            const icon = document.getElementById('mode-icon');
+
+            isModeChanging = true;
+            btn.disabled = true; // 样式会自动变淡
+
+            const STAR_PATH = 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z';
+            const WORLD_PATH = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z';
+
+            if (gameMode === "normal") {
+                gameMode = "all";
+                icon.innerHTML = `<path d="${WORLD_PATH}"/>`;
+                showToast("Mode: All Words (Hard)");
+            } else {
+                gameMode = "normal";
+                icon.innerHTML = `<path d="${STAR_PATH}"/>`;
+                showToast("Mode: Common Words");
+            }
+
+            startNewRound();
+
+            // 5秒后恢复点击
+            setTimeout(() => {
+                isModeChanging = false;
+                btn.disabled = false;
+            }, 5000);
+        }
+
+        // --- 新增模式切换函数 ---
+        function toggleMode() {
+            if (isAnimating) return;
+
+            const modeIcon = document.getElementById('mode-icon');
+            // 星星图标 (Normal)
+            const STAR_PATH = 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z';
+            // 地球/所有图标 (All)
+            const WORLD_PATH = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z';
+
+            if (gameMode === "normal") {
+                gameMode = "all";
+                modeIcon.innerHTML = `<path d="${WORLD_PATH}"/>`;
+                showToast("Mode: All Words (Harder)");
+            } else {
+                gameMode = "normal";
+                modeIcon.innerHTML = `<path d="${STAR_PATH}"/>`;
+                showToast("Mode: Common Words (Normal)");
+            }
+
+            startNewRound();
+        }
+
         function toggleHints() {
             hintsVisible = !hintsVisible;
             const panel = document.getElementById('hint-panel');
@@ -587,8 +700,12 @@
         }
 
         function updateHintList() {
-            const listEl = document.getElementById('hint-list');
-            const possible = answersPool.filter(word => {
+            const listPre = document.getElementById('hint-list-pre');
+            if (!listPre) return;
+
+            const currentPool = (gameMode === "normal") ? answersPool : combinedPool;
+
+            const possible = currentPool.filter(word => {
                 for (let i = 0; i < 5; i++) {
                     if (constraints.correct[i] && word[i] !== constraints.correct[i]) return false;
                 }
@@ -606,7 +723,9 @@
             });
 
             document.getElementById('hint-header').textContent = `${possible.length} Possible`;
-            listEl.innerHTML = possible.join('<br>');
+
+            // 使用 \n 换行，textContent 性能极高，不会导致卡死
+            listPre.textContent = possible.join('\n');
         }
 
         function resetGame() {
