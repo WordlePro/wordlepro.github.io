@@ -535,6 +535,39 @@
             padding-bottom: 0;
             border: 0;
         }
+
+        /* 胜利跳动动画 */
+        @keyframes bounce {
+
+            0%,
+            20% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-30px);
+            }
+
+            50% {
+                transform: translateY(5px);
+            }
+
+            60% {
+                transform: translateY(-15px);
+            }
+
+            80% {
+                transform: translateY(2px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .bounce {
+            animation: bounce 1000ms ease-in-out;
+        }
     </style>
 </head>
 
@@ -913,6 +946,7 @@
                 }, i * 300);
             });
 
+            // 修改 submitGuess 函数内部最后的 setTimeout 部分
             setTimeout(() => {
                 guessArr.forEach((char, i) => updateKey(char, states[i]));
                 isAnimating = false;
@@ -921,6 +955,17 @@
                 if (guessString === targetWord) {
                     gameStatus = "won";
                     showToast(PRAISES[guesses.length - 1]);
+
+                    // --- 新增：胜利跳动逻辑 ---
+                    const startIdx = (guesses.length - 1) * 5; // 获取当前行的起始索引
+                    for (let i = 0; i < 5; i++) {
+                        const tile = document.getElementById(`tile-${startIdx + i}`);
+                        // 使用 setTimeout 实现依次跳动的效果 (每个间隔 100ms)
+                        setTimeout(() => {
+                            tile.classList.add("bounce");
+                        }, i * 100);
+                    }
+                    // -----------------------
                 } else if (guesses.length === 6) {
                     gameStatus = "lost";
                     showToast(targetWord, true);
