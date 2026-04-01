@@ -789,6 +789,7 @@
             // 根据当前模式从不同词池随机选词
             const pool = (gameMode === "normal") ? answersPool : combinedPool;
             targetWord = pool[Math.floor(Math.random() * pool.length)];
+            console.log(targetWord);
 
             currentGuess = "";
             guesses = [];
