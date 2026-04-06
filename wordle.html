@@ -17,6 +17,11 @@
     <script src="common.js"></script>
 
     <style>
+        :root {
+            --clear-offset: 175px;
+            --clear-offset-mobile: 130px;
+        }
+
         .icon-btn svg {
             width: 24px;
             height: 24px;
@@ -216,17 +221,6 @@
             /* 确保初始化后可见 */
         }
 
-        .board-row {
-            display: flex;
-            justify-content: center;
-            /* 确保方块组居中 */
-            align-items: center;
-            position: relative;
-            /* 必须：作为按钮定位的基准 */
-            width: 100%;
-            margin-bottom: 5px;
-        }
-
         /* 键盘：等宽设计 */
         #keyboard {
             width: 100%;
@@ -334,52 +328,6 @@
             width: 330px;
             flex-shrink: 0;
             /* 防止被挤压 */
-        }
-
-        /* 4. 清除按钮：占位但不影响左侧居中 */
-        .clear-row-btn {
-            position: absolute;
-            /* 核心逻辑：位于中心向右偏移 (方块组一半宽度 + 间距) */
-            /* 330/2 = 165px，再加上 10px 的间距 = 175px */
-            left: calc(50% + 175px);
-
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            fill: var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            transition: opacity 0.2s ease, fill 0.2s ease;
-
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .clear-row-btn.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .clear-row-btn:hover {
-            fill: var(--text);
-            background-color: rgba(120, 120, 120, 0.1);
-        }
-
-        /* 适配移动端，防止按钮挤压方块 */
-        @media (max-width: 600px) {
-            .tiles-grid {
-                width: 250px;
-                /* 移动端方块组变窄 */
-            }
-
-            .clear-row-btn {
-                /* 250/2 = 125px，加上 5px 间距 = 130px */
-                left: calc(50% + 130px);
-                padding: 4px;
-            }
         }
 
         .hidden {
@@ -727,7 +675,7 @@
             // 更新提示面板标题
             const hintHeader = document.getElementById('hint-header');
             if (hintHeader) hintHeader.textContent = t.possibleWords;
-            
+
             // 更新当前的提示列表（词频后缀等）
             updateHintList();
         }
@@ -1028,33 +976,6 @@
             if (e.key === "Enter" && document.activeElement) document.activeElement.blur();
             handleInput(e.key === "Enter" ? "ENTER" : e.key === "Backspace" ? "⌫" : e.key.toUpperCase());
         };
-
-        function clearCurrentLine() {
-            if (isAnimating || gameStatus !== "playing" || currentGuess.length === 0) return;
-
-            const startIdx = guesses.length * 5;
-            for (let i = 0; i < 5; i++) {
-                const tile = document.getElementById(`tile-${startIdx + i}`);
-                if (tile) {
-                    tile.textContent = "";
-                    tile.removeAttribute("data-state");
-                    tile.classList.remove("pop");
-                }
-            }
-            currentGuess = "";
-            updateClearBtnVisibility();
-        }
-
-        function updateClearBtnVisibility() {
-            // 隐藏所有按钮
-            document.querySelectorAll('.clear-row-btn').forEach(btn => btn.classList.remove('visible'));
-
-            // 如果当前行有输入且游戏未结束，显示当前行的按钮
-            if (currentGuess.length > 0 && gameStatus === "playing") {
-                const activeBtn = document.getElementById(`clear-row-${guesses.length}`);
-                if (activeBtn) activeBtn.classList.add('visible');
-            }
-        }
 
         // --- 困难模式逻辑拦截 ---
         // 修改 validateAndSubmit 函数，在有效性检查后增加困难模式检查：

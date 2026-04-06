@@ -130,5 +130,41 @@ function dismissStartScreen() {
     }
 }
 
+function updateClearBtnVisibility() {
+    // 1. 先全部重置
+    document.querySelectorAll('.clear-row-btn').forEach(btn => {
+        btn.classList.remove('visible');
+    });
+
+    // 2. 找到当前活跃行
+    const currentRowIdx = guesses.length;
+    const activeBtn = document.getElementById(`clear-row-${currentRowIdx}`);
+
+    // 3. 判断显示：当前行有字 且 游戏没结束
+    if (activeBtn && currentGuess.length > 0 && gameStatus === "playing") {
+        activeBtn.classList.add('visible');
+    }
+}
+
+function clearCurrentLine() {
+    if (document.activeElement) document.activeElement.blur();
+    if (isAnimating || gameStatus !== "playing" || currentGuess.length === 0) return;
+
+    const row = guesses.length;
+    for (let c = 0; c < 5; c++) {
+        // 兼容两种格式：tile-row-col (Hard) 和 tile-index (Normal)
+        const t1 = document.getElementById(`tile-${row}-${c}`);
+        const t2 = document.getElementById(`tile-${row * 5 + c}`);
+        const tile = t1 || t2;
+        if (tile) {
+            tile.textContent = "";
+            tile.removeAttribute("data-state");
+            tile.classList.remove("pop");
+        }
+    }
+    currentGuess = "";
+    updateClearBtnVisibility();
+}
+
 // 初始化调用
 window.addEventListener('DOMContentLoaded', initTheme);

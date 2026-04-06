@@ -359,6 +359,54 @@ body.high-contrast .toast-yellow {
     color: var(--yellow);
 }
 
+/* --- 每一行的基础容器 --- */
+.board-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    /* 必须：作为 X 按钮的定位基准 */
+    width: fit-content;
+    margin: 0 auto 5px;
+}
+
+/* --- 清除整行按钮：公共样式 --- */
+/* 清除按钮相对于 .board-row 定位 */
+.clear-row-btn {
+    position: absolute;
+    /* 核心逻辑：无论行多宽，按钮都固定在行末尾右侧 50px 处 */
+    right: -55px;
+    left: auto !important;
+
+    display: flex !important;
+    /* 确保不是 display:none */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    fill: var(--text-muted);
+    border-radius: 4px;
+
+    /* 初始状态 */
+    opacity: 0 !important;
+    pointer-events: none;
+    transition: opacity 0.2s ease, fill 0.2s ease;
+    z-index: 100;
+    /* 确保在最上层 */
+}
+
+/* 强制显示类 */
+.clear-row-btn.visible {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.clear-row-btn:hover {
+    fill: var(--text);
+    background-color: rgba(120, 120, 120, 0.1);
+}
+
 /* --- 核心动画 --- */
 .pop {
     animation: pop 0.1s ease-in-out;

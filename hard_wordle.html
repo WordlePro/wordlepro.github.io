@@ -17,6 +17,12 @@
     <script src="common.js"></script>
 
     <style>
+        :root {
+            /* 逻辑模式因为右边有 3 个计分块，所以 X 要推得更远 */
+            --clear-offset: 385px;
+            --clear-offset-mobile: 225px;
+        }
+
         .icon-btn svg {
             width: 24px;
             height: 24px;
@@ -73,26 +79,34 @@
             margin-bottom: 10px;
         }
 
+        /* --- 棋盘总容器：双栏布局 --- */
         #board {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: fit-content;
-            margin: 0 auto;
-            padding: 10px;
-            max-height: 60vh;
-            /* 限制高度，防止超过键盘 */
-            overflow-y: auto;
-            /* 超过高度后可以滚动 */
+            display: grid;
+            /* 两列，每列宽度自适应内容 */
+            grid-template-columns: auto auto;
+            /* 左右两栏的间距，给 X 按钮留出足够空间 */
+            column-gap: 80px;
+            row-gap: 10px;
+            padding: 20px;
+            max-height: none;
+            /* 双栏后高度减半，不再需要滚动条 */
+            overflow: visible;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(5, auto);
         }
 
-        .board-row {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            /* 字母区与计分区之间的间隙 */
+        /* 移动端适配：双栏太宽，手机上切回单列 */
+        @media (max-width: 1000px) {
+            #board {
+                grid-template-columns: auto;
+                grid-template-rows: unset;
+                grid-auto-flow: row;
+                column-gap: 0;
+            }
+
+            .clear-row-btn {
+                right: -45px !important;
+            }
         }
 
         /* --- 逻辑模式棋盘滚动条样式（对齐提示栏） --- */
@@ -247,31 +261,23 @@
             user-select: none;
         }
 
-        /* 右侧计分区域容器：常驻边框 */
+        /* 计分区域：紧贴字母区右侧 */
         .stats-grid {
+            margin-left: 15px;
+            /* 字母区和计分区的固定间距 */
             display: grid !important;
             grid-template-columns: repeat(3, 1fr) !important;
             gap: 5px;
-
-            /* 精准尺寸计算 */
-            width: calc(var(--tile-size) * 3 + (5px * 2));
-            height: var(--tile-size);
-            /* 与格子一样高 */
-
-            /* 初始边框样式 */
+            width: 196px;
+            /* (62*3) + (5*2) */
+            height: 62px;
             border: 2px solid var(--border-empty);
             border-radius: 4px;
-            box-sizing: border-box;
-            /* 确保边框不撑大容器 */
-
-            /* 内部布局 */
-            visibility: visible !important;
-            opacity: 1 !important;
-            transition: all 0.3s ease;
+            transition: border-color 0.3s;
         }
 
         .stats-grid.revealed {
-            border: none;
+            border-color: transparent;
         }
 
         /* 黑暗模式下的底色微调 */
@@ -961,38 +967,54 @@
         }
 
         const board = document.getElementById("board");
-        board.innerHTML = ""; // 清空原有内容
+        board.innerHTML = "";
 
+        // 为了实现左边 1-5 行，右边 6-10 行的视觉顺序
+        // 我们可以直接按 0-9 生成，然后靠 CSS 控制
         for (let r = 0; r < 10; r++) {
             const row = document.createElement("div");
             row.className = "board-row";
 
-            // 左侧：5个字母方块
+            // 1. 字母格容器
             const tilesGrid = document.createElement("div");
             tilesGrid.className = "tiles-grid";
             for (let c = 0; c < 5; c++) {
                 const tile = document.createElement("div");
                 tile.className = "tile";
-                tile.id = `tile-${r}-${c}`; // 修改 ID 格式方便定位
+                tile.id = `tile-${r}-${c}`;
                 tilesGrid.appendChild(tile);
             }
 
-            // 右侧：3个计分方块 (绿、黄、灰)
+            // 2. 计分格容器
             const statsGrid = document.createElement("div");
             statsGrid.className = "stats-grid";
             statsGrid.id = `stats-${r}`;
-
-            const colors = ["correct", "present", "absent"];
-            colors.forEach(state => {
-                const cTile = document.createElement("div");
-                cTile.className = "tile count-tile";
-                cTile.setAttribute("data-state", state); // 设置绿、黄、灰颜色
-                cTile.textContent = "0";
-                statsGrid.appendChild(cTile);
+            ["correct", "present", "absent"].forEach(state => {
+                const ct = document.createElement("div");
+                ct.className = "tile count-tile";
+                ct.setAttribute("data-state", state);
+                ct.textContent = "0";
+                statsGrid.appendChild(ct);
             });
+
+            // 3. 清除按钮
+            const clr = document.createElement("button");
+            clr.className = "clear-row-btn";
+            clr.id = `clear-row-${r}`;
+            clr.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
+
+            // 使用 common.js 里的统一函数
+            clr.onclick = (e) => {
+                clearCurrentLine();
+
+                if (e.currentTarget) {
+                    e.currentTarget.blur();
+                }
+            };
 
             row.appendChild(tilesGrid);
             row.appendChild(statsGrid);
+            row.appendChild(clr);
             board.appendChild(row);
         }
 
@@ -1049,6 +1071,8 @@
                 }
                 currentGuess += char;
             }
+
+            updateClearBtnVisibility();
         }
 
         document.onkeydown = (e) => {
