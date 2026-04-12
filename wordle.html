@@ -707,7 +707,7 @@
         }
 
         function startNewRound() {
-            if (gameOverToast) { gameOverToast.remove(); gameOverToast = null; }
+            clearPersistentToast(); // 在开始新回合时清除持久化提示框
 
             // 清理跳动计时器和数组
             bounceTimeouts.forEach(clearTimeout);

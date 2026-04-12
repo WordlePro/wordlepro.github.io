@@ -5,6 +5,7 @@
 // --- 基础状态 ---
 let currentLang = localStorage.getItem('language') || 'en';
 let isHighContrast = localStorage.getItem('wordle_high_contrast') === 'true';
+let activePersistentToast = null;
 
 // --- 主题管理 ---
 function initTheme() {
@@ -64,18 +65,33 @@ function showToast(msg, persistent = false) {
     const container = document.getElementById("toast-container");
     if (!container) return;
 
+    // 在显示任何新提示前，必须立即清理之前的持久提示
+    clearPersistentToast();
+
     const t = document.createElement("div");
     t.className = "toast";
     t.innerHTML = msg;
     container.appendChild(t);
 
     if (persistent) {
-        return t; // 返回引用以便后续手动移除
+        activePersistentToast = t; // 记录这个持久化的提示框
+        return t;
     } else {
         setTimeout(() => {
             t.classList.add("hide");
             setTimeout(() => t.remove(), 450);
         }, 1800);
+    }
+}
+
+/**
+ * 立即删除持久化提示框（不带动画）
+ * 用于重新开始游戏时，防止新旧提示位置冲突
+ */
+function clearPersistentToast() {
+    if (activePersistentToast) {
+        activePersistentToast.remove(); // 核心：直接从 DOM 中移除
+        activePersistentToast = null;
     }
 }
 
