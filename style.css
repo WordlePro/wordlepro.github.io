@@ -305,19 +305,36 @@ input:checked+.slider:before {
     transform: translateX(12px);
 }
 
-/* Toast */
+/* --- Toast 容器布局 --- */
 #toast-container {
     position: fixed;
     top: 10%;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000;
+    z-index: 2000;
+    /* 确保在弹窗之上 */
     display: flex;
     flex-direction: column;
     align-items: center;
     pointer-events: none;
+    width: 100%;
 }
 
+/* --- Toast 容器 --- */
+#toast-container {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    width: 100%;
+}
+
+/* --- Toast 基础样式 (初始状态) --- */
 .toast {
     background-color: var(--text);
     color: var(--bg);
@@ -325,21 +342,42 @@ input:checked+.slider:before {
     border-radius: 4px;
     font-weight: 700;
     margin-bottom: 10px;
-    transition: opacity 0.4s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: fit-content;
+
+    /* 动画初始值 */
+    opacity: 1;
+    max-height: 100px;
+    /* 必须显式设置一个足够大的高度 */
     overflow: hidden;
+
+    /* 定义哪些属性需要平滑过渡 */
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease,
+        max-height 0.4s ease,
+        margin 0.4s ease,
+        padding 0.4s ease;
 }
 
+/* --- 消失状态 (由 common.js 添加 .hide 类触发) --- */
 .toast.hide {
     opacity: 0;
     transform: translateY(-20px);
+    /* 向上轻微漂移 */
     max-height: 0;
+    /* 高度缩减到0 */
     margin-bottom: 0;
-    padding: 0;
+    /* 间距缩减到0 */
+    padding-top: 0;
+    /* 内边距缩减到0 */
+    padding-bottom: 0;
 }
 
+/* Toast 内部颜色加亮 (Hard Mode 报错用) */
 .toast-green {
     color: var(--green);
-    /* 增加亮度，防止在黑色背景下看不清 */
     filter: brightness(1.2);
     font-weight: 900;
 }
