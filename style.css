@@ -203,6 +203,44 @@ header {
     box-shadow: 0 2px 4px var(--tool-shadow);
 }
 
+/* 标记工具栏内的图标基础颜色 */
+.tool-btn i {
+    transition: color 0.2s;
+}
+
+/* 悬停时高亮，增强交互感 */
+.tool-btn:hover i.fa-floppy-disk {
+    color: var(--green) !important;
+}
+
+.tool-btn:hover i.fa-clock-rotate-left {
+    color: var(--yellow) !important;
+}
+
+/* 禁用边框显示 */
+.tool-btn:focus {
+    outline: none !important;
+}
+
+.tool-divider {
+    width: 1px;
+    height: 30px;
+    background: var(--border-empty);
+    margin: 0 10px;
+}
+
+.action-btn i {
+    color: var(--text-muted);
+}
+
+.action-btn:hover i {
+    color: var(--text);
+}
+
+.action-btn:active {
+    transform: scale(0.9);
+}
+
 /* 键盘 */
 .key {
     background-color: var(--key-bg);

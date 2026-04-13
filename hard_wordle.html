@@ -523,14 +523,24 @@
                 <button class="tool-btn" data-tool="erase" onclick="selectTool('erase')">
                     <i class="fa-solid fa-eraser"></i>
                 </button>
-            </div>
 
-            <div id="keyboard">
-                <div class="keyboard-row" id="row1"></div>
-                <div class="keyboard-row" id="row2"></div>
-                <div class="keyboard-row" id="row3"></div>
+                <div class="tool-divider"></div>
+
+                <!-- 逻辑快照工具 -->
+                <button class="tool-btn action-btn" title="保存逻辑快照" onclick="saveMarkings()"><i
+                        class="fa-solid fa-bookmark"></i></button>
+                <button class="tool-btn action-btn" title="回退逻辑快照" onclick="loadMarkings()"><i
+                        class="fa-solid fa-rotate-left"></i></button>
             </div>
-        </main>
+    </div>
+    </div>
+
+    <div id="keyboard">
+        <div class="keyboard-row" id="row1"></div>
+        <div class="keyboard-row" id="row2"></div>
+        <div class="keyboard-row" id="row3"></div>
+    </div>
+    </main>
     </div>
 
     <!-- 自定义确认弹窗 -->
@@ -620,6 +630,11 @@
                     absent: "GRAY",
                     erase: "ERASE",
                 },
+                saveSuccess: "Marking State Saved",
+                loadSuccess: "Marking State Restored",
+                noSave: "No saved state found",
+                confirmSave: "Save current markings as a snapshot?",
+                confirmLoad: "Restore markings from snapshot? Current unsaved marks will be lost.",
             },
             zh: {
                 wordleTitle: "逻辑模式",
@@ -666,8 +681,13 @@
                     half: "绿色/黄色",
                     present: "黄色",
                     absent: "灰色",
-                    erase: "擦除"
+                    erase: "擦除",
                 },
+                saveSuccess: "标记状态已存档",
+                loadSuccess: "标记状态已读档",
+                noSave: "未找到存档记录",
+                confirmSave: "将当前标记保存到存档？",
+                confirmLoad: "从存档恢复标记？当前未存档的标记将丢失。",
             },
         };
 
@@ -716,38 +736,75 @@
             const [res1, res2] = await Promise.all([fetch(ANSWERS_FILE), fetch(ALLOWED_FILE)]);
             const text1 = await res1.text();
             const text2 = await res2.text();
-
-            // 正常模式词池 (常用词)
             answersPool = text1.split(/\r?\n/).map(w => w.trim().toUpperCase()).filter(w => w.length === 5).sort();
             const allowed = text2.split(/\r?\n/).map(w => w.trim().toUpperCase()).filter(w => w.length === 5);
-
-            // 验证集
             validGuesses = new Set([...answersPool, ...allowed]);
-            // 所有词汇模式词池 (全量)
             combinedPool = Array.from(validGuesses).sort();
 
-            // 确保初始化图标与保存的模式一致
-            const icon = document.getElementById('mode-icon');
-            if (gameMode === "all") {
-                icon.classList.remove('fa-star');
-                icon.classList.add('fa-earth-americas');
+            // 1. 恢复游戏进度 (单词、猜测记录)
+            const savedSession = localStorage.getItem('hard_wordle_session');
+            if (savedSession) {
+                const session = JSON.parse(savedSession);
+                targetWord = session.targetWord;
+                guesses = session.guesses;
+                gameStatus = session.gameStatus;
+                restoreBoardFromSession(); // 这个函数在上一条回复中提供过
+            } else {
+                startNewRound();
             }
 
-            startNewRound();
+            // 2. 核心新增：恢复草稿颜色
+            restoreMarkings();
+
             document.getElementById('loading').style.display = 'none';
             document.getElementById('board').style.visibility = 'visible';
             initialized = true;
         }
 
+        function restoreBoardFromSession() {
+            guesses.forEach((guess, rowIdx) => {
+                // 1. 填入单词并变灰
+                for (let i = 0; i < 5; i++) {
+                    const tile = document.getElementById(`tile-${rowIdx}-${i}`);
+                    tile.textContent = guess[i];
+                    tile.setAttribute("data-state", "submitted");
+                }
+                // 2. 重新计算并显示右侧统计块
+                const targetArr = [...targetWord];
+                const guessArr = guess.split("");
+                let green = 0, yellow = 0;
+                const tUsed = Array(5).fill(false), gUsed = Array(5).fill(false);
+                guessArr.forEach((c, i) => { if (c === targetArr[i]) { green++; tUsed[i] = gUsed[i] = true; } });
+                guessArr.forEach((c, i) => {
+                    if (!gUsed[i]) {
+                        const fi = targetArr.findIndex((tc, ti) => !tUsed[ti] && tc === c);
+                        if (fi !== -1) { yellow++; tUsed[fi] = true; }
+                    }
+                });
+
+                const statsGrid = document.getElementById(`stats-${rowIdx}`);
+                const counts = statsGrid.querySelectorAll(".count-tile");
+                counts[0].textContent = green;
+                counts[1].textContent = yellow;
+                counts[2].textContent = 5 - green - yellow;
+                statsGrid.classList.add("revealed");
+            });
+        }
+
         function startNewRound() {
-            clearPersistentToast(); // 在开始新回合时清除持久化提示框
+            // 1. 清除提示框
+            clearPersistentToast();
+
+            // 2. 物理清除本地存储的所有记录
+            localStorage.removeItem('hard_wordle_session');      // 清除进度
+            localStorage.removeItem('hard_wordle_current_marks'); // 清除草稿
+            localStorage.removeItem('hard_wordle_snapshot');      // 清除手动快照
 
             bounceTimeouts.forEach(clearTimeout);
             bounceTimeouts = [];
 
             const pool = (gameMode === "normal") ? answersPool : combinedPool;
             targetWord = pool[Math.floor(Math.random() * pool.length)];
-            console.log(`🎉 You opened the console! The answer is: ${targetWord}`);
 
             currentGuess = "";
             guesses = [];
@@ -787,6 +844,8 @@
                 k.style.backgroundColor = "";
                 k.style.color = "";
             });
+
+            updateClearBtnVisibility();
         }
 
         async function toggleWordMode() {
@@ -1040,7 +1099,6 @@
 
             if (activeMarkingTool === 'erase') {
                 el.removeAttribute('data-mark');
-                // 针对键盘按键的特殊处理
                 if (el.classList.contains('key')) {
                     el.style.backgroundColor = "";
                     el.style.color = "";
@@ -1048,6 +1106,109 @@
             } else {
                 el.setAttribute('data-mark', activeMarkingTool);
             }
+
+            // 核心新增：每次标记后，自动保存当前全场标记状态
+            autoSaveAllMarkings();
+        }
+
+        // 获取全场标记并存入本地存储
+        function autoSaveAllMarkings() {
+            const currentMarks = {
+                tiles: [],
+                keys: []
+            };
+
+            // 记录方格
+            document.querySelectorAll('.tile[data-mark]').forEach(tile => {
+                currentMarks.tiles.push({ id: tile.id, mark: tile.getAttribute('data-mark') });
+            });
+
+            // 记录键盘
+            document.querySelectorAll('.key[data-mark]').forEach(key => {
+                currentMarks.keys.push({ keyVal: key.dataset.key, mark: key.getAttribute('data-mark') });
+            });
+
+            localStorage.setItem('hard_wordle_current_marks', JSON.stringify(currentMarks));
+        }
+
+        // 从本地存储恢复标记
+        function restoreMarkings() {
+            const saved = localStorage.getItem('hard_wordle_current_marks');
+            if (!saved) return;
+
+            const data = JSON.parse(saved);
+            // 还原方格
+            data.tiles.forEach(item => {
+                const el = document.getElementById(item.id);
+                if (el) el.setAttribute('data-mark', item.mark);
+            });
+            // 还原键盘
+            data.keys.forEach(item => {
+                const el = document.querySelector(`.key[data-key="${item.keyVal}"]`);
+                if (el) el.setAttribute('data-mark', item.mark);
+            });
+        }
+
+        // --- 修改后的存档函数 ---
+        async function saveMarkings() {
+            if (document.activeElement) document.activeElement.blur();
+
+            // 弹出自定义确认窗口
+            const confirmed = await showCustomConfirm(i18n[currentLang].confirmSave);
+            if (!confirmed) return;
+
+            const markingData = {
+                tiles: [],
+                keys: []
+            };
+
+            document.querySelectorAll('.tile[data-mark]').forEach(tile => {
+                markingData.tiles.push({ id: tile.id, mark: tile.getAttribute('data-mark') });
+            });
+
+            document.querySelectorAll('.key[data-mark]').forEach(key => {
+                markingData.keys.push({ keyVal: key.dataset.key, mark: key.getAttribute('data-mark') });
+            });
+
+            localStorage.setItem('hard_wordle_snapshot', JSON.stringify(markingData));
+            showToast(i18n[currentLang].saveSuccess);
+        }
+
+        // --- 修改后的读档函数 ---
+        async function loadMarkings() {
+            if (document.activeElement) document.activeElement.blur();
+
+            const savedData = localStorage.getItem('hard_wordle_snapshot');
+            if (!savedData) {
+                showToast(i18n[currentLang].noSave);
+                return;
+            }
+
+            // 弹出自定义确认窗口
+            const confirmed = await showCustomConfirm(i18n[currentLang].confirmLoad);
+            if (!confirmed) return;
+
+            const data = JSON.parse(savedData);
+
+            // 1. 先清空当前所有标记
+            document.querySelectorAll('[data-mark]').forEach(el => el.removeAttribute('data-mark'));
+
+            // 2. 还原方格
+            data.tiles.forEach(item => {
+                const el = document.getElementById(item.id);
+                if (el) el.setAttribute('data-mark', item.mark);
+            });
+
+            // 3. 还原键盘
+            data.keys.forEach(item => {
+                const el = document.querySelector(`.key[data-key="${item.keyVal}"]`);
+                if (el) el.setAttribute('data-mark', item.mark);
+            });
+
+            // 4. 读档后也要触发一次自动存档，确保刷新后维持读档后的状态
+            autoSaveAllMarkings();
+
+            showToast(i18n[currentLang].loadSuccess);
         }
 
         function handleInput(key) {
@@ -1224,6 +1385,7 @@
 
             guesses.push(guessString);
             currentGuess = "";
+            localStorage.setItem('hard_wordle_session', JSON.stringify({ targetWord, guesses, gameStatus }));
         }
 
         function updateKey(char, state) {
