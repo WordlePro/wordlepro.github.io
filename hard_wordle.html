@@ -4,16 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WordlePro</title>
+    <title>Logicle</title>
     <link rel="icon" type="image/png" href="wordle_logo_32x32.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
 
     <!-- 引入官方替代字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@100..900&family=Roboto+Slab:wght@100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="common.js"></script>
 
@@ -81,7 +79,7 @@
             grid-template-columns: auto auto;
             /* 左右两栏的间距，给 X 按钮留出足够空间 */
             column-gap: 80px;
-            row-gap: 10px;
+            row-gap: 5px;
             padding-top: 40px;
             max-height: none;
             /* 双栏后高度减半，不再需要滚动条 */
@@ -218,9 +216,9 @@
 
         /* 字母方块提交后变灰（保持逻辑：不告诉哪个字母对，只在右侧显示总数） */
         .tiles-grid .tile[data-state="submitted"] {
-            background-color: #3a3a3c;
+            background-color: #6b6b6b;
             /* 使用深灰色 */
-            border-color: #3a3a3c;
+            border-color: #6b6b6b;
             color: #ffffff;
         }
 
@@ -265,68 +263,176 @@
             gap: 5px;
         }
 
-        #start-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #e3e3e1;
-            /* 官网米灰色 */
-            color: #000000;
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.4s ease-out;
-        }
-
-        .start-content {
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .start-logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 12px;
-        }
-
-        .start-title {
-            font-family: 'Roboto Slab', serif;
-            font-size: 50px;
-            font-weight: 700;
-            margin: 0 0 12px;
-        }
-
-        .start-subtitle {
-            font-family: 'Roboto Slab', sans-serif;
-            font-size: 38px;
-            font-weight: 350;
-            margin: 0 0 36px;
-        }
-
-        .play-btn {
-            background: #000;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            height: 48px;
-            width: 150px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .play-btn:active {
-            transform: scale(0.96);
-        }
-
         .hidden {
             opacity: 0;
             pointer-events: none;
+        }
+
+        /* 玩法弹窗 */
+        #help-modal .modal-content {
+            max-width: 500px;
+            text-align: left;
+            padding: 24px 32px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--header-border);
+            padding-bottom: 12px;
+        }
+
+        .help-header h2 {
+            margin: 0;
+            font-size: 16px;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        .help-section {
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .help-example {
+            margin: 16px 0;
+        }
+
+        .help-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .help-tile {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 2px solid var(--border-filled);
+            border-radius: 4px;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .help-tile.correct {
+            background-color: var(--green);
+            border-color: var(--green);
+            color: var(--tile-text);
+        }
+
+        .help-tile.present {
+            background-color: var(--yellow);
+            border-color: var(--yellow);
+            color: var(--tile-text);
+        }
+
+        .help-tile.absent {
+            background-color: var(--gray);
+            border-color: var(--gray);
+            color: var(--tile-text);
+        }
+
+        .help-desc {
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+
+        .help-stats {
+            display: flex;
+            gap: 5px;
+            margin-left: 15px;
+        }
+
+        .help-stat-tile {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .help-stat-tile.correct {
+            background-color: var(--green);
+        }
+
+        .help-stat-tile.present {
+            background-color: var(--yellow);
+        }
+
+        .help-stat-tile.absent {
+            background-color: var(--gray);
+        }
+
+        .help-stats-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .help-stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .help-stat-label {
+            font-size: 12px;
+            color: var(--text);
+        }
+
+        .logicle-demo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 16px;
+        }
+
+        .help-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .legend-color.correct {
+            background-color: var(--green);
+        }
+
+        .legend-color.present {
+            background-color: var(--yellow);
+        }
+
+        .legend-color.absent {
+            background-color: var(--gray);
         }
 
         #modal-message {
@@ -405,18 +511,63 @@
             padding: 5px;
             border-radius: 4px;
         }
+
+        /* 结算弹窗 */
+        #result-modal .modal-content {
+            gap: 20px;
+            padding: 40px 32px;
+        }
+
+        #result-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        #result-word {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .result-tile {
+            width: 52px;
+            height: 52px;
+            background-color: var(--green);
+            color: var(--tile-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+
+        .result-btn {
+            margin-top: 8px;
+            padding: 14px 32px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            background-color: var(--text);
+            color: var(--bg);
+            transition: filter 0.2s;
+            font-family: inherit;
+        }
+
+        .result-btn:hover {
+            filter: brightness(1.2);
+        }
     </style>
 </head>
 
 <body>
-    <div id="start-screen">
-        <div class="start-content">
-            <img src="wordle-icon.svg" class="start-logo">
-            <h1 class="start-title">WordlePro</h1>
-            <p class="start-subtitle">Loading...</p>
-            <button class="play-btn" onclick="dismissStartScreen()">Play</button>
-        </div>
-    </div>
     <!-- Header 部分 -->
     <header>
         <button class="icon-btn" onclick="location.href='index.html'" title="Back">
@@ -432,14 +583,30 @@
         </div>
 
         <img src="wordle-icon.svg" class="header-logo" alt="Logo">
-        <p class="header-title">WordlePro</p>
+        <p class="header-title">Logicle</p>
 
         <div class="header-settings">
+            <button class="icon-btn" onclick="openHelp()" title="Help">
+                <i class="fa-solid fa-circle-question"></i>
+            </button>
             <button class="icon-btn" onclick="openSettings()">
                 <i class="fa-solid fa-gear"></i>
             </button>
         </div>
     </header>
+
+    <!-- 玩法弹窗 -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="help-header">
+                <h2 id="help-title">HOW TO PLAY</h2>
+                <button class="icon-btn" onclick="closeHelp()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="help-body"></div>
+        </div>
+    </div>
 
     <!-- 设置模态框 -->
     <div id="settings-modal" class="modal-overlay">
@@ -484,13 +651,12 @@
 
             <div class="settings-footer">
                 <p>©
-                    <script>document.write(new Date().getFullYear())</script> WordlePro
+                    <script>document.write(new Date().getFullYear())</script> Logicle
                 </p>
             </div>
         </div>
     </div>
 
-    <div id="loading">Loading dictionary...</div>
     <div id="toast-container"></div>
 
     <div id="main-layout">
@@ -554,6 +720,15 @@
         </div>
     </div>
 
+    <!-- 结算弹窗 -->
+    <div id="result-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="result-title"></h2>
+            <div id="result-word"></div>
+            <button class="result-btn" onclick="closeResultModal(); startNewRound();"></button>
+        </div>
+    </div>
+
     <script>
         const ANSWERS_FILE = 'possible_words.txt';
         const ALLOWED_FILE = 'allowed_words.txt';
@@ -584,7 +759,7 @@
 
         const i18n = {
             en: {
-                wordleTitle: "Logic Mode",
+                wordleTitle: "Logicle",
                 play: "Play",
                 subtitle: "Get 10 chances to guess a <span style='white-space:nowrap'>5-letter</span> word.",
                 newGame: "New Game Started",
@@ -635,9 +810,17 @@
                 noSave: "No saved state found",
                 confirmSave: "Save current markings as a snapshot?",
                 confirmLoad: "Restore markings from snapshot? Current unsaved marks will be lost.",
+                resultWin: "You Win!",
+                resultLose: "The word was",
+                playAgain: "Play Again",
+                howToPlay: "HOW TO PLAY",
+                helpIntro: "Guess the word in <strong>10</strong> tries.<br>Each guess must be a valid 5-letter word. Hit the enter button to submit.<br>Unlike standard mode, you won't know which specific positions are correct. Each row only displays the total count of matched letters.",
+                helpCorrect: "Correct letter & spot",
+                helpPresent: "Correct letter, wrong spot",
+                helpAbsent: "Not in the word",
             },
             zh: {
-                wordleTitle: "逻辑模式",
+                wordleTitle: "Logicle",
                 play: "开始游戏",
                 subtitle: "你有 10 次机会猜出一个 5 个字母的单词。",
                 newGame: "新游戏已开始",
@@ -688,6 +871,14 @@
                 noSave: "未找到存档记录",
                 confirmSave: "将当前标记保存到存档？",
                 confirmLoad: "从存档恢复标记？当前未存档的标记将丢失。",
+                resultWin: "恭喜猜中！",
+                resultLose: "答案是",
+                playAgain: "再来一局",
+                howToPlay: "游戏玩法",
+                helpIntro: "在 <strong>10</strong> 次机会内猜出单词。<br>每次猜测必须是有效的 5 字母单词，按回车键提交。<br>与标准模式不同，系统不会告知具体哪个字母正确，只显示匹配字母的总数。",
+                helpCorrect: "字母和位置都正确",
+                helpPresent: "字母正确但位置错误",
+                helpAbsent: "不在单词中",
             },
         };
 
@@ -701,11 +892,6 @@
 
         function updateUILanguage() {
             const t = i18n[currentLang];
-            // 更新起始页
-            const playBtn = document.querySelector('.play-btn');
-            if (playBtn) playBtn.textContent = t.play;
-            const subtitle = document.querySelector('.start-subtitle');
-            if (subtitle) subtitle.innerHTML = t.subtitle;
 
             // 更新提示面板标题
             const hintHeaderTitle = document.getElementById('hint-header-title'); // 如果你给标题加了ID
@@ -713,7 +899,7 @@
             document.getElementById('hint-header').firstChild.textContent = t.possibleWords;
 
             // 更新选择框的值
-            document.querySelector('title').textContent = `WordlePro - ${t.wordleTitle}`;
+            document.querySelector('title').textContent = `Logicle - ${t.wordleTitle}`;
             document.getElementById('settings-title').textContent = t.settings;
             document.getElementById('label-dark-mode').textContent = t.darkMode;
             document.getElementById('label-high-contrast').textContent = t.highContrast;
@@ -756,7 +942,6 @@
             // 2. 核心新增：恢复草稿颜色
             restoreMarkings();
 
-            document.getElementById('loading').style.display = 'none';
             document.getElementById('board').style.visibility = 'visible';
             initialized = true;
         }
@@ -789,6 +974,14 @@
                 counts[2].textContent = 5 - green - yellow;
                 statsGrid.classList.add("revealed");
             });
+
+            if (gameStatus === "won") {
+                showToast(i18n[currentLang].praises[guesses.length - 1]);
+                showResultModal(true);
+            } else if (gameStatus === "lost") {
+                showToast(targetWord, true);
+                showResultModal(false);
+            }
         }
 
         function startNewRound() {
@@ -1381,11 +1574,48 @@
                         showToast(targetWord, true);
                     }
                 }
+
+                // 显示结算弹窗
+                if (gameStatus === "won") {
+                    setTimeout(() => showResultModal(true), 1200);
+                } else if (gameStatus === "lost") {
+                    showResultModal(false);
+                }
             }, 1700);
 
             guesses.push(guessString);
             currentGuess = "";
             localStorage.setItem('hard_wordle_session', JSON.stringify({ targetWord, guesses, gameStatus }));
+        }
+
+        function showResultModal(isWin) {
+            const modal = document.getElementById('result-modal');
+            const title = document.getElementById('result-title');
+            const wordContainer = document.getElementById('result-word');
+            const btn = modal.querySelector('.result-btn');
+            const t = i18n[currentLang];
+
+            title.textContent = isWin ? t.resultWin : t.resultLose;
+            btn.textContent = t.playAgain;
+
+            wordContainer.innerHTML = '';
+            for (const char of targetWord) {
+                const tile = document.createElement('div');
+                tile.className = 'result-tile';
+                tile.textContent = char;
+                wordContainer.appendChild(tile);
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeResultModal() {
+            const modal = document.getElementById('result-modal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('closing');
+            }, 200);
         }
 
         function updateKey(char, state) {
@@ -1405,27 +1635,6 @@
             key.style.color = "white";
         }
 
-        // 修改原有的 handleInput，增加遮罩状态判断
-        const originalHandleInput = handleInput;
-        handleInput = function (key) {
-            const startScreen = document.getElementById('start-screen');
-            // 如果封面还在，不处理任何输入
-            if (startScreen && !startScreen.classList.contains('hidden')) return;
-            originalHandleInput(key);
-        };
-
-        // 拦截键盘输入，防止在封面打开时可以玩游戏
-        const oldHandleInput = handleInput;
-        handleInput = function (key) {
-            const screen = document.getElementById('start-screen');
-            if (screen && !screen.classList.contains('hidden')) {
-                // 如果按了回车也可以开始游戏
-                if (key === "ENTER") dismissStartScreen();
-                return;
-            }
-            oldHandleInput(key);
-        };
-
         // --- 辅助函数：判断当前是否有游戏进度 ---
         function isGameDirty() {
             // 满足以下任一条件即视为“有进度”：
@@ -1435,11 +1644,68 @@
             return (guesses.length > 0 || currentGuess.length > 0) && gameStatus === "playing";
         }
 
+        function openHelp() {
+            const modal = document.getElementById('help-modal');
+            const title = document.getElementById('help-title');
+            const body = document.getElementById('help-body');
+            const t = i18n[currentLang];
+
+            title.textContent = t.howToPlay;
+            body.innerHTML = `
+                <div class="help-section">${t.helpIntro}</div>
+                <div class="help-example">
+                    <div class="logicle-demo">
+                        <div class="help-row" style="margin-bottom:0;">
+                            <div class="help-tile absent">C</div>
+                            <div class="help-tile absent">R</div>
+                            <div class="help-tile absent">A</div>
+                            <div class="help-tile absent">N</div>
+                            <div class="help-tile absent">E</div>
+                        </div>
+                        <div class="help-stats" style="margin-bottom:0;">
+                            <div class="help-stat-tile correct">1</div>
+                            <div class="help-stat-tile present">1</div>
+                            <div class="help-stat-tile absent">3</div>
+                        </div>
+                    </div>
+                    <div class="help-legend">
+                        <div class="legend-item">
+                            <div class="legend-color correct"></div>
+                            <span>${t.helpCorrect}</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color present"></div>
+                            <span>${t.helpPresent}</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color absent"></div>
+                            <span>${t.helpAbsent}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeHelp() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('closing');
+            }, 200);
+        }
+
         updateUILanguage();
         initSettings();
         initTheme();
         if (localStorage.getItem('wordle_high_contrast') === 'true') {
             document.body.classList.add('high-contrast');
+        }
+        if (!localStorage.getItem('logicle_help_seen')) {
+            setTimeout(() => openHelp(), 500);
+            localStorage.setItem('logicle_help_seen', 'true');
         }
         initGame();
     </script>

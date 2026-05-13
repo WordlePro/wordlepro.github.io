@@ -10,7 +10,7 @@
     <!-- 引入字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@100..900&family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -20,7 +20,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Libre Franklin', sans-serif;
+            font-family: 'Fraunces', serif;
             color: #000;
             overflow-x: hidden;
         }
@@ -41,7 +41,7 @@
 
         /* 保持 50px 大小 */
         .portal-title {
-            font-family: 'Roboto Slab', serif;
+            font-family: 'Fraunces', serif;
             font-size: 50px;
             font-weight: 700;
             margin: 0 0 36px;
@@ -83,7 +83,7 @@
         }
 
         .card-title {
-            font-family: 'Roboto Slab', serif;
+            font-family: 'Fraunces', serif;
             font-size: 26px;
             font-weight: 700;
             margin: 0 0 16px;
@@ -104,8 +104,8 @@
             border-radius: 3px;
             margin-bottom: 20px;
         }
-        .accent-wordle { background-color: #6aaa64; } /* 绿色 */
-        .accent-hard { background-color: #3a3a3c; }   /* 深灰 */
+        .accent-wordle { background-color: #2d8544; } /* 绿色 */
+        .accent-hard { background-color: #6b6b6b; }   /* 深灰 */
 
         /* 顶部语言切换 */
         .lang-switcher {
@@ -149,14 +149,14 @@
             <!-- Wordle 卡片 -->
             <a href="wordle.html" class="game-card">
                 <div class="card-accent accent-wordle"></div>
-                <h2 class="card-title" id="title-wordle">WordlePro</h2>
+                <h2 class="card-title" id="title-wordle">Wordle</h2>
                 <p class="card-desc" id="desc-wordle"></p>
             </a>
 
-            <!-- Hard Wordle 卡片 -->
+            <!-- Logicle 卡片 -->
             <a href="hard_wordle.html" class="game-card">
                 <div class="card-accent accent-hard"></div>
-                <h2 class="card-title" id="title-hard">Hard Wordle</h2>
+                <h2 class="card-title" id="title-hard">Logicle</h2>
                 <p class="card-desc" id="desc-hard"></p>
             </a>
         </div>
@@ -167,9 +167,9 @@
 
         const i18n = {
             en: {
-                wordleTitle: "Standard Mode",
+                wordleTitle: "Wordle",
                 wordleDesc: "The classic experience. Get <strong>6 chances</strong> to guess a 5-letter word. <strong>After each guess, tiles change color</strong>: Green means the letter is correct and in the right spot; Yellow means the letter is in the word but wrong spot; Gray means it's not in the word.",
-                hardTitle: "Logic Mode",
+                hardTitle: "Logicle",
                 hardDesc: "A Mastermind-style challenge. You get <strong>10 attempts</strong> attempts. Unlike standard mode, <strong>you won't know which specific positions are correct</strong>. Each row only displays the total count of matched letters (Green/Yellow/Gray) as a summary."
             },
             zh: {

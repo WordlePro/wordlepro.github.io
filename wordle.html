@@ -4,16 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WordlePro</title>
+    <title>Wordle</title>
     <link rel="icon" type="image/png" href="wordle_logo_32x32.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
 
     <!-- 引入官方替代字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@100..900&family=Roboto+Slab:wght@100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="common.js"></script>
 
@@ -81,7 +79,7 @@
             flex-grow: 1;
             overflow-y: auto;
             padding: 10px 0;
-            font-family: 'Libre Franklin', sans-serif;
+            font-family: 'Fraunces', serif;
             font-weight: 700;
             font-size: 17px;
             line-height: 2.2;
@@ -107,7 +105,7 @@
         /* 高性能渲染区域：使用 pre 保留换行，textContent 写入 */
         #hint-list-pre {
             margin: 0;
-            font-family: 'Libre Franklin', sans-serif;
+            font-family: 'Fraunces', serif;
             font-weight: 700;
             font-size: 17px;
             line-height: 2.2;
@@ -127,65 +125,6 @@
         }
 
 
-
-        #start-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #e3e3e1;
-            /* 官网米灰色 */
-            color: #000000;
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.4s ease-out;
-        }
-
-        .start-content {
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .start-logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 12px;
-        }
-
-        .start-title {
-            font-family: 'Roboto Slab', serif;
-            font-size: 50px;
-            font-weight: 700;
-            margin: 0 0 12px;
-        }
-
-        .start-subtitle {
-            font-family: 'Roboto Slab', sans-serif;
-            font-size: 38px;
-            font-weight: 350;
-            margin: 0 0 36px;
-        }
-
-        .play-btn {
-            background: #000;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            height: 48px;
-            width: 150px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .play-btn:active {
-            transform: scale(0.96);
-        }
 
         /* 作答区：始终保持全屏居中 */
         #game-area {
@@ -291,18 +230,143 @@
             padding: 5px;
             border-radius: 4px;
         }
+
+        /* 结算弹窗 */
+        #result-modal .modal-content {
+            gap: 20px;
+            padding: 40px 32px;
+        }
+
+        #result-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        #result-word {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .result-tile {
+            width: 52px;
+            height: 52px;
+            background-color: var(--green);
+            color: var(--tile-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+
+        .result-btn {
+            margin-top: 8px;
+            padding: 14px 32px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            background-color: var(--text);
+            color: var(--bg);
+            transition: filter 0.2s;
+            font-family: inherit;
+        }
+
+        .result-btn:hover {
+            filter: brightness(1.2);
+        }
+
+        /* 玩法弹窗 */
+        #help-modal .modal-content {
+            max-width: 500px;
+            text-align: left;
+            padding: 24px 32px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--header-border);
+            padding-bottom: 12px;
+        }
+
+        .help-header h2 {
+            margin: 0;
+            font-size: 16px;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        .help-section {
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .help-example {
+            margin: 16px 0;
+        }
+
+        .help-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .help-tile {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 2px solid var(--border-filled);
+            border-radius: 4px;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .help-tile.correct {
+            background-color: var(--green);
+            border-color: var(--green);
+            color: var(--tile-text);
+        }
+
+        .help-tile.present {
+            background-color: var(--yellow);
+            border-color: var(--yellow);
+            color: var(--tile-text);
+        }
+
+        .help-tile.absent {
+            background-color: var(--gray);
+            border-color: var(--gray);
+            color: var(--tile-text);
+        }
+
+        .help-desc {
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
     </style>
 </head>
 
 <body>
-    <div id="start-screen">
-        <div class="start-content">
-            <img src="wordle-icon.svg" class="start-logo">
-            <h1 class="start-title">WordlePro</h1>
-            <p class="start-subtitle">Loading...</p>
-            <button class="play-btn" onclick="dismissStartScreen()">Play</button>
-        </div>
-    </div>
     <!-- Header 部分 -->
     <header>
         <button class="icon-btn" onclick="location.href='index.html'" title="Back">
@@ -321,14 +385,30 @@
         </div>
 
         <img src="wordle-icon.svg" class="header-logo" alt="Logo">
-        <p class="header-title">WordlePro</p>
+        <p class="header-title">Wordle</p>
 
         <div class="header-settings">
+            <button class="icon-btn" onclick="openHelp()" title="Help">
+                <i class="fa-solid fa-circle-question"></i>
+            </button>
             <button class="icon-btn" onclick="openSettings()">
                 <i class="fa-solid fa-gear"></i>
             </button>
         </div>
     </header>
+
+    <!-- 玩法弹窗 -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="help-header">
+                <h2 id="help-title">HOW TO PLAY</h2>
+                <button class="icon-btn" onclick="closeHelp()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="help-body"></div>
+        </div>
+    </div>
 
     <!-- 设置模态框 -->
     <div id="settings-modal" class="modal-overlay">
@@ -385,13 +465,12 @@
 
             <div class="settings-footer">
                 <p>©
-                    <script>document.write(new Date().getFullYear())</script> WordlePro
+                    <script>document.write(new Date().getFullYear())</script> Wordle
                 </p>
             </div>
         </div>
     </div>
 
-    <div id="loading">Loading dictionary...</div>
     <div id="toast-container"></div>
 
     <div id="main-layout">
@@ -419,11 +498,20 @@
     <!-- 自定义确认弹窗 -->
     <div id="modal-overlay" class="modal-overlay">
         <div class="modal-content">
-            <p id="modal-message"></p>
+                <p id="modal-message"></p>
             <div class="modal-buttons">
                 <button id="modal-cancel-btn" class="modal-btn cancel"></button>
                 <button id="modal-confirm-btn" class="modal-btn confirm"></button>
             </div>
+        </div>
+    </div>
+
+    <!-- 结算弹窗 -->
+    <div id="result-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="result-title"></h2>
+            <div id="result-word"></div>
+            <button class="result-btn" onclick="closeResultModal(); startNewRound();"></button>
         </div>
     </div>
 
@@ -457,7 +545,7 @@
 
         const i18n = {
             en: {
-                wordleTitle: "Standard Mode",
+                wordleTitle: "Wordle",
                 play: "Play",
                 subtitle: "Get 6 chances to guess a <span style='white-space:nowrap'>5-letter</span> word.",
                 newGame: "New Game Started",
@@ -480,10 +568,18 @@
                 language: "Language",
                 hardModeGreen: "Hard Mode: {pos} letter must be {char}",
                 hardModeYellow: "Hard Mode: Must contain {char}",
-                ordinals: ["1st", "2nd", "3rd", "4th", "5th"]
+                ordinals: ["1st", "2nd", "3rd", "4th", "5th"],
+                resultWin: "You Win!",
+                resultLose: "The word was",
+                playAgain: "Play Again",
+                howToPlay: "HOW TO PLAY",
+                helpIntro: "Guess the <strong>WORDLE</strong> in 6 tries.<br>Each guess must be a valid 5-letter word. Hit the enter button to submit.<br>After each guess, the color of the tiles will change to show how close your guess was to the word.",
+                helpCorrect: "<strong>W</strong> is in the word and in the correct spot.",
+                helpPresent: "<strong>I</strong> is in the word but in the wrong spot.",
+                helpAbsent: "<strong>U</strong> is not in the word in any spot.",
             },
             zh: {
-                wordleTitle: "标准模式",
+                wordleTitle: "Wordle",
                 play: "开始游戏",
                 subtitle: "你有 6 次机会猜出一个 5 个字母的单词。",
                 newGame: "新游戏已开始",
@@ -506,7 +602,15 @@
                 language: "语言",
                 hardModeGreen: "困难模式：第 {pos} 个字母必须是 {char}",
                 hardModeYellow: "困难模式：必须包含 {char}",
-                ordinals: ["1", "2", "3", "4", "5"] // 中文直接用数字
+                ordinals: ["1", "2", "3", "4", "5"], // 中文直接用数字
+                resultWin: "恭喜猜中！",
+                resultLose: "答案是",
+                playAgain: "再来一局",
+                howToPlay: "游戏玩法",
+                helpIntro: "在 <strong>6</strong> 次机会内猜出单词。<br>每次猜测必须是有效的 5 字母单词，按回车键提交。<br>每次猜测后，方块颜色会改变，提示你的猜测有多接近答案。",
+                helpCorrect: "<strong>W</strong> 在单词中且位置正确。",
+                helpPresent: "<strong>I</strong> 在单词中但位置错误。",
+                helpAbsent: "<strong>U</strong> 不在单词中。",
             }
         };
 
@@ -530,17 +634,12 @@
 
         function updateUILanguage() {
             const t = i18n[currentLang];
-            // 更新起始页
-            const playBtn = document.querySelector('.play-btn');
-            if (playBtn) playBtn.textContent = t.play;
-            const subtitle = document.querySelector('.start-subtitle');
-            if (subtitle) subtitle.innerHTML = t.subtitle;
 
             // 更新提示面板标题
             const hintHeaderTitle = document.getElementById('hint-header-title');
 
             // 更新选择框的值
-            document.querySelector('title').textContent = `WordlePro - ${t.wordleTitle}`;
+            document.querySelector('title').textContent = `Wordle - ${t.wordleTitle}`;
             document.getElementById('settings-title').textContent = t.settings;
             document.getElementById('label-hard-mode').textContent = t.hardMode;
             document.getElementById('desc-hard-mode').textContent = t.hardModeDesc;
@@ -586,12 +685,64 @@
                     icon.classList.add("fa-earth-americas");
                 }
 
-                startNewRound();
-                document.getElementById('loading').style.display = 'none';
+                // 恢复游戏进度
+                const savedSession = localStorage.getItem('wordle_session');
+                if (savedSession) {
+                    const session = JSON.parse(savedSession);
+                    targetWord = session.targetWord;
+                    guesses = session.guesses;
+                    gameStatus = session.gameStatus;
+                    constraints = {
+                        correct: session.constraints.correct,
+                        present: session.constraints.present,
+                        absent: new Set(session.constraints.absent)
+                    };
+                    restoreBoardFromSession();
+                } else {
+                    startNewRound();
+                }
+
                 document.getElementById('board').style.visibility = 'visible';
                 initialized = true;
             } catch (e) {
-                document.getElementById('loading').textContent = "Dictionary Load Error.";
+                document.getElementById('board').style.visibility = 'visible';
+            }
+        }
+
+        function restoreBoardFromSession() {
+            guesses.forEach((guess, rowIdx) => {
+                const targetArr = [...targetWord];
+                const guessArr = guess.split("");
+                const states = Array(5).fill("absent");
+
+                guessArr.forEach((c, i) => {
+                    if (c === targetArr[i]) {
+                        states[i] = "correct";
+                        targetArr[i] = null;
+                    }
+                });
+                guessArr.forEach((c, i) => {
+                    if (states[i] !== "correct" && targetArr.includes(c)) {
+                        states[i] = "present";
+                        targetArr[targetArr.indexOf(c)] = null;
+                    }
+                });
+
+                for (let i = 0; i < 5; i++) {
+                    const tile = document.getElementById(`tile-${rowIdx * 5 + i}`);
+                    tile.textContent = guess[i];
+                    tile.setAttribute("data-state", states[i]);
+                }
+
+                guessArr.forEach((char, i) => updateKey(char, states[i]));
+            });
+
+            if (gameStatus === "won") {
+                showToast(i18n[currentLang].praises[guesses.length - 1]);
+                showResultModal(true);
+            } else if (gameStatus === "lost") {
+                showToast(targetWord, true);
+                showResultModal(false);
             }
         }
 
@@ -601,6 +752,8 @@
             // 清理跳动计时器和数组
             bounceTimeouts.forEach(clearTimeout);
             bounceTimeouts = [];
+
+            localStorage.removeItem('wordle_session'); // 清除进度
 
             const pool = (gameMode === "normal") ? answersPool : combinedPool;
             targetWord = pool[Math.floor(Math.random() * pool.length)];
@@ -991,10 +1144,58 @@
                 }
 
                 updateClearBtnVisibility();
+
+                localStorage.setItem('wordle_session', JSON.stringify({
+                    targetWord,
+                    guesses,
+                    gameStatus,
+                    constraints: {
+                        correct: constraints.correct,
+                        present: constraints.present,
+                        absent: Array.from(constraints.absent)
+                    }
+                }));
+
+                // 显示结算弹窗
+                if (gameStatus === "won") {
+                    setTimeout(() => showResultModal(true), 1200);
+                } else if (gameStatus === "lost") {
+                    showResultModal(false);
+                }
             }, 1700);
 
             guesses.push(guessString);
             currentGuess = "";
+        }
+
+        function showResultModal(isWin) {
+            const modal = document.getElementById('result-modal');
+            const title = document.getElementById('result-title');
+            const wordContainer = document.getElementById('result-word');
+            const btn = modal.querySelector('.result-btn');
+            const t = i18n[currentLang];
+
+            title.textContent = isWin ? t.resultWin : t.resultLose;
+            btn.textContent = t.playAgain;
+
+            wordContainer.innerHTML = '';
+            for (const char of targetWord) {
+                const tile = document.createElement('div');
+                tile.className = 'result-tile';
+                tile.textContent = char;
+                wordContainer.appendChild(tile);
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeResultModal() {
+            const modal = document.getElementById('result-modal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('closing');
+            }, 200);
         }
 
         function updateKey(char, state) {
@@ -1014,27 +1215,6 @@
             key.style.color = "white";
         }
 
-        // 修改原有的 handleInput，增加遮罩状态判断
-        const originalHandleInput = handleInput;
-        handleInput = function (key) {
-            const startScreen = document.getElementById('start-screen');
-            // 如果封面还在，不处理任何输入
-            if (startScreen && !startScreen.classList.contains('hidden')) return;
-            originalHandleInput(key);
-        };
-
-        // 拦截键盘输入，防止在封面打开时可以玩游戏
-        const oldHandleInput = handleInput;
-        handleInput = function (key) {
-            const screen = document.getElementById('start-screen');
-            if (screen && !screen.classList.contains('hidden')) {
-                // 如果按了回车也可以开始游戏
-                if (key === "ENTER") dismissStartScreen();
-                return;
-            }
-            oldHandleInput(key);
-        };
-
         // --- 辅助函数：判断当前是否有游戏进度 ---
         function isGameDirty() {
             // 满足以下任一条件即视为“有进度”：
@@ -1044,11 +1224,68 @@
             return (guesses.length > 0 || currentGuess.length > 0) && gameStatus === "playing";
         }
 
+        function openHelp() {
+            const modal = document.getElementById('help-modal');
+            const title = document.getElementById('help-title');
+            const body = document.getElementById('help-body');
+            const t = i18n[currentLang];
+
+            title.textContent = t.howToPlay;
+            body.innerHTML = `
+                <div class="help-section">${t.helpIntro}</div>
+                <div class="help-example">
+                    <div class="help-row">
+                        <div class="help-tile correct">W</div>
+                        <div class="help-tile">E</div>
+                        <div class="help-tile">A</div>
+                        <div class="help-tile">R</div>
+                        <div class="help-tile">Y</div>
+                    </div>
+                    <div class="help-desc">${t.helpCorrect}</div>
+                </div>
+                <div class="help-example">
+                    <div class="help-row">
+                        <div class="help-tile">P</div>
+                        <div class="help-tile present">I</div>
+                        <div class="help-tile">L</div>
+                        <div class="help-tile">L</div>
+                        <div class="help-tile">S</div>
+                    </div>
+                    <div class="help-desc">${t.helpPresent}</div>
+                </div>
+                <div class="help-example">
+                    <div class="help-row">
+                        <div class="help-tile">V</div>
+                        <div class="help-tile">A</div>
+                        <div class="help-tile">G</div>
+                        <div class="help-tile absent">U</div>
+                        <div class="help-tile">E</div>
+                    </div>
+                    <div class="help-desc">${t.helpAbsent}</div>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeHelp() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('closing');
+            }, 200);
+        }
+
         updateUILanguage();
         initSettings();
         initTheme();
         if (localStorage.getItem('wordle_high_contrast') === 'true') {
             document.body.classList.add('high-contrast');
+        }
+        if (!localStorage.getItem('wordle_help_seen')) {
+            setTimeout(() => openHelp(), 500);
+            localStorage.setItem('wordle_help_seen', 'true');
         }
         initGame();
     </script>
